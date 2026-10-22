@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="system">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Indian Currency Calculator — Cash Tally & Denomination Counter</title>
+  <meta name="description" content="Minimalist Indian currency calculator with real-time tallying, Indian Standard Time, day/night system theme, denomination assets, and history tracking.">
+  <link rel="icon" type="image/png" href="currency%20assents/Indian%20Currency%20Calculator.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="loading-state">
+
+  <!-- ==================== STARTUP COIN FLIP SPLASH ==================== -->
+  <div id="splash-screen" class="splash-screen" role="dialog" aria-modal="true" aria-label="Welcome intro animation">
+    <div class="splash-ambient-glow"></div>
+    <div class="splash-container">
+      <!-- 3D Coin Stage -->
+      <div class="coin-stage">
+        <div class="coin-3d" id="splash-coin">
+          <!-- Front Face (Heads) -->
+          <div class="coin-face coin-front">
+            <div class="coin-rim"></div>
+            <div class="coin-inner">
+              <span class="coin-symbol">₹</span>
+              <span class="coin-text-top">BHARAT • INDIA</span>
+              <span class="coin-text-bottom">सत्यमेव जयते</span>
+            </div>
+            <div class="coin-sheen"></div>
+          </div>
+          <!-- Coin Edge (Extruded Thickness) -->
+          <div class="coin-edge"></div>
+          <!-- Back Face (Tails) -->
+          <div class="coin-face coin-back">
+            <div class="coin-rim"></div>
+            <div class="coin-inner">
+              <span class="coin-numeral">1</span>
+              <span class="coin-text-top">RUPEE • रुपया</span>
+              <span class="coin-text-bottom">2026</span>
+            </div>
+            <div class="coin-sheen"></div>
+          </div>
+        </div>
+        <div class="coin-shadow" id="splash-coin-shadow"></div>
+        <div class="coin-impact-ring" id="splash-coin-ring"></div>
+        <div class="coin-sparks" id="splash-coin-sparks">
+          <span class="spark s1"></span>
+          <span class="spark s2"></span>
+          <span class="spark s3"></span>
+          <span class="spark s4"></span>
+        </div>
+      </div>
+
+      <!-- Splash Branding -->
+      <div class="splash-meta">
+        <div class="splash-badge">
+          <span class="pulse-dot"></span>
+          <span>INDIAN CURRENCY CALCULATOR</span>
+        </div>
+        <h1 class="splash-title">Cash Tally & Denominations</h1>
+        <p class="splash-subtitle">Initializing Indian Standard Time & Currency Assets...</p>
+      </div>
+
+      <button id="skip-splash-btn" class="skip-splash-btn" type="button" title="Skip animation">
+        <span>Skip Intro</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== MAIN APPLICATION ==================== -->
+  <div class="app-layout" id="app-layout">
+    
+    <!-- HEADER -->
+    <header class="app-header">
+      <div class="header-container">
+        <!-- Logo & Branding -->
+        <div class="brand-group">
+          <button id="replay-intro-btn" class="brand-logo-btn" title="Click to replay 3D coin flip animation">
+            <img src="currency%20assents/Indian%20Currency%20Calculator.png" alt="Indian Currency Calculator Logo" class="brand-logo-img">
+            <span class="brand-logo-play-hint" aria-hidden="true">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </span>
+          </button>
+          <div class="brand-text">
+            <div class="brand-title-row">
+              <h1 class="brand-title">Cash Tally</h1>
+              <span class="currency-tag">INR • ₹</span>
+            </div>
+            <p class="brand-subtitle">Indian Currency & Denominations</p>
+          </div>
+        </div>
+
+        <!-- IST Time & Date Bar -->
+        <div class="ist-widget" id="ist-widget" title="Current time and date in Indian Standard Time (UTC+5:30)">
+          <div class="ist-icon-box" id="ist-period-icon">
+            <!-- Icon will be inserted dynamically (Sun / Moon) -->
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+          </div>
+          <div class="ist-details">
+            <div class="ist-time-row">
+              <span class="ist-time" id="ist-time-display">--:--:-- --</span>
+              <span class="ist-badge">IST</span>
+            </div>
+            <span class="ist-date" id="ist-date-display">Loading date...</span>
+          </div>
+        </div>
+
+        <!-- Header Controls (Theme, Sound, History) -->
+        <div class="header-actions">
+          <!-- Theme Switcher Segmented Control -->
+          <div class="theme-segmented-ctrl" role="radiogroup" aria-label="Theme mode selection">
+            <button class="theme-btn" data-theme-choice="light" id="theme-btn-light" role="radio" aria-checked="false" title="Light theme (Clean White)">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+              <span>Light</span>
+            </button>
+            <button class="theme-btn" data-theme-choice="dark" id="theme-btn-dark" role="radio" aria-checked="false" title="Dark theme (True Black)">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+              <span>Dark</span>
+            </button>
+            <button class="theme-btn active" data-theme-choice="system" id="theme-btn-system" role="radio" aria-checked="true" title="System theme (Syncs with Indian time: Day=Light, Night=Dark)">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20z"/></svg>
+              <span>System</span>
+              <span class="system-time-tag" id="system-mode-indicator">IST</span>
+            </button>
+          </div>
+
+          <!-- Audio FX Toggle -->
+          <button id="sound-toggle-btn" class="icon-action-btn" title="Toggle audio feedback" aria-label="Toggle sound">
+            <svg id="sound-on-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+            <svg id="sound-off-icon" class="hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></svg>
+          </button>
+
+          <!-- History Drawer Button -->
+          <button id="open-history-btn" class="icon-action-btn history-pill-btn" title="Open saved calculations history" aria-label="Open history">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+            <span class="history-label">History</span>
+            <span class="history-badge-count" id="history-count-badge">0</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN BODY CONTAINER -->
+    <main class="main-content">
+      <div class="content-wrapper">
+
+        <!-- ==================== STATS & SUMMARY HERO CARD ==================== -->
+        <section class="summary-hero-card pop-item" style="--delay: 1">
+          <div class="summary-hero-top">
+            <div class="hero-amount-col">
+              <span class="hero-label">Total Cash Tally</span>
+              <div class="hero-amount-wrapper">
+                <span class="currency-prefix">₹</span>
+                <span class="hero-amount-val" id="total-amount-display">0.00</span>
+              </div>
+              <div class="hero-words-wrapper">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+                <span class="hero-amount-words" id="total-words-display">Zero Rupees Only</span>
+              </div>
+            </div>
+
+            <!-- Quick Counter Stats -->
+            <div class="hero-stats-col">
+              <div class="stat-bubble">
+                <span class="stat-title">Total Pieces</span>
+                <span class="stat-value" id="total-pieces-display">0</span>
+              </div>
+              <div class="stat-sub-stats">
+                <div class="mini-stat">
+                  <span class="mini-stat-label">Notes Count:</span>
+                  <span class="mini-stat-val" id="total-notes-display">0</span>
+                </div>
+                <div class="mini-stat">
+                  <span class="mini-stat-label">Coins Count:</span>
+                  <span class="mini-stat-val" id="total-coins-display">0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Action Bar -->
+          <div class="summary-action-bar">
+            <div class="action-btn-group">
+              <button id="save-tally-btn" class="action-btn btn-primary" title="Save current calculation to history">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                <span>Save to History</span>
+              </button>
+              <button id="copy-summary-btn" class="action-btn btn-secondary" title="Copy breakdown formatted for WhatsApp or records">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                <span>Copy Breakdown</span>
+              </button>
+              <button id="print-slip-btn" class="action-btn btn-secondary" title="View & print cash record slip">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+                <span>Cash Record</span>
+              </button>
+              <button id="clear-all-btn" class="action-btn btn-danger-ghost" title="Reset all currency quantities to 0">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                <span>Reset</span>
+              </button>
+            </div>
+
+            <!-- View / Filter Toggles -->
+            <div class="filter-group">
+              <div class="segmented-pill-filter">
+                <button class="filter-pill active" data-filter="all">All (10)</button>
+                <button class="filter-pill" data-filter="notes">Notes</button>
+                <button class="filter-pill" data-filter="coins">Coins</button>
+              </div>
+              <button id="sort-toggle-btn" class="sort-toggle-btn" title="Toggle sorting order (High to Low / Low to High)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="m21 8-4-4-4 4"/><path d="M17 4v16"/></svg>
+                <span id="sort-order-label">500 → 50p</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== DENOMINATIONS LIST ==================== -->
+        <section class="denominations-section" aria-label="Currency Denominations List">
+          <div class="denominations-grid" id="denominations-container">
+            <!-- Dynamically populated denomination cards with pop-up icons/assets -->
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- ==================== STICKY BOTTOM TALLY BAR (MOBILE / SCROLL) ==================== -->
+    <div class="sticky-tally-bar" id="sticky-tally-bar">
+      <div class="sticky-inner">
+        <div class="sticky-summary">
+          <span class="sticky-label">Total Amount:</span>
+          <span class="sticky-val" id="sticky-amount-display">₹ 0.00</span>
+          <span class="sticky-pieces" id="sticky-pieces-display">(0 pcs)</span>
+        </div>
+        <div class="sticky-actions">
+          <button id="sticky-save-btn" class="sticky-btn btn-save" title="Save tally">Save</button>
+          <button id="sticky-reset-btn" class="sticky-btn btn-reset" title="Clear tally">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== HISTORY DRAWER ==================== -->
+    <div id="history-drawer-overlay" class="drawer-overlay" aria-hidden="true">
+      <aside class="history-drawer" role="dialog" aria-labelledby="history-drawer-title">
+        <div class="drawer-header">
+          <div class="drawer-title-group">
+            <div class="drawer-icon-wrap">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+            </div>
+            <div>
+              <h2 id="history-drawer-title" class="drawer-title">Calculation History</h2>
+              <p class="drawer-subtitle">Saved tallies with Indian Standard Time</p>
+            </div>
+          </div>
+          <button id="close-history-btn" class="close-drawer-btn" title="Close drawer" aria-label="Close history">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+        </div>
+
+        <div class="drawer-toolbar">
+          <span class="drawer-count-info" id="drawer-count-info">0 records</span>
+          <div class="drawer-actions">
+            <button id="export-history-btn" class="drawer-tool-btn" title="Export history to CSV file">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>CSV</span>
+            </button>
+            <button id="clear-history-all-btn" class="drawer-tool-btn btn-danger-text" title="Delete all history">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+              <span>Clear All</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- History Records Container -->
+        <div class="history-list" id="history-list-container">
+          <!-- Populated by JavaScript -->
+        </div>
+      </aside>
+    </div>
+
+    <!-- ==================== SAVE TALLY MODAL ==================== -->
+    <div id="save-modal-overlay" class="modal-overlay" aria-hidden="true">
+      <div class="modal-card" role="dialog" aria-labelledby="save-modal-title">
+        <div class="modal-header">
+          <h3 id="save-modal-title" class="modal-title">Save Cash Tally</h3>
+          <button id="close-save-modal-btn" class="close-modal-btn" aria-label="Close">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-preview-box">
+            <div class="modal-amount-label">Current Total:</div>
+            <div class="modal-amount-val" id="modal-amount-preview">₹ 0.00</div>
+            <div class="modal-words-preview" id="modal-words-preview">Zero Rupees Only</div>
+            <div class="modal-ist-preview" id="modal-ist-preview">IST: --</div>
+          </div>
+          <div class="modal-input-field">
+            <label for="tally-title-input" class="input-label">Title / Remark (Optional)</label>
+            <input type="text" id="tally-title-input" class="text-input" placeholder="e.g. Day End Closing, Bank Deposit, Register A" maxlength="60">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="cancel-save-btn" class="action-btn btn-secondary">Cancel</button>
+          <button id="confirm-save-btn" class="action-btn btn-primary">Save to History</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== CASH RECORD / DEPOSIT SLIP MODAL ==================== -->
+    <div id="challan-modal-overlay" class="modal-overlay" aria-hidden="true">
+      <div class="modal-card challan-card" role="dialog" aria-labelledby="challan-title">
+        <div class="modal-header no-print">
+          <div class="challan-header-meta">
+            <h3 id="challan-title" class="modal-title">Cash Record</h3>
+            <span class="challan-badge">Cash Denomination Record</span>
+          </div>
+          <button id="close-challan-modal-btn" class="close-modal-btn" aria-label="Close">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+        </div>
+        <div class="modal-body challan-body" id="challan-print-area">
+          <!-- Printable Cash Record Slip -->
+          <div class="bank-slip-doc">
+            <div class="slip-top-row">
+              <div class="slip-bank-name">
+                <span class="slip-logo-symbol">₹</span>
+                <div>
+                  <h4>CASH RECORD</h4>
+                  <p>Cash Denomination Voucher & Tally</p>
+                </div>
+              </div>
+              <div class="slip-date-box">
+                <span class="slip-label">Date & Time (IST):</span>
+                <span class="slip-date-val" id="slip-ist-datetime">--</span>
+              </div>
+            </div>
+
+            <div class="slip-meta-grid">
+              <div class="slip-field">
+                <span class="slip-field-label">Account No. / Tally Ref:</span>
+                <span class="slip-field-line" id="slip-account-ref">CASH-TALLY-REGULAR</span>
+              </div>
+              <div class="slip-field">
+                <span class="slip-field-label">Account / Depositor Name:</span>
+                <span class="slip-field-line" contenteditable="true" title="Click to edit name on slip">Cashier / Store Register</span>
+              </div>
+            </div>
+
+            <!-- Table -->
+            <table class="slip-table">
+              <thead>
+                <tr>
+                  <th>Denomination</th>
+                  <th class="text-center">Type</th>
+                  <th class="text-right">Quantity (Pcs)</th>
+                  <th class="text-right">Amount (₹)</th>
+                </tr>
+              </thead>
+              <tbody id="slip-table-body">
+                <!-- Dynamically populated with active denominations -->
+              </tbody>
+              <tfoot>
+                <tr class="slip-total-row">
+                  <th colspan="2">TOTAL PIECES</th>
+                  <th class="text-right" id="slip-total-pcs">0</th>
+                  <th class="text-right" id="slip-total-amount">₹ 0.00</th>
+                </tr>
+              </tfoot>
+            </table>
+
+            <div class="slip-words-section">
+              <span class="slip-words-label">Amount in Words:</span>
+              <p class="slip-words-text" id="slip-amount-words">Zero Rupees Only</p>
+            </div>
+
+            <div class="slip-sign-row">
+              <div class="slip-sign-box">
+                <div class="sign-line"></div>
+                <span>Depositor's / Cashier Signature</span>
+              </div>
+              <div class="slip-sign-box">
+                <div class="sign-line"></div>
+                <span>Authorised Official / Officer</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer no-print">
+          <button id="print-now-btn" class="action-btn btn-primary" title="Print Cash Record">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+            <span>Print</span>
+          </button>
+          <button id="close-challan-btn" class="action-btn btn-secondary">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== IMAGE ZOOM LIGHTBOX MODAL ==================== -->
+    <div id="image-modal-overlay" class="modal-overlay" aria-hidden="true">
+      <div class="modal-card image-lightbox-card">
+        <div class="modal-header">
+          <div class="lightbox-meta">
+            <h3 id="lightbox-title" class="modal-title">Indian Currency Asset</h3>
+            <span id="lightbox-badge" class="currency-tag">₹ 500</span>
+          </div>
+          <button id="close-lightbox-btn" class="close-modal-btn" aria-label="Close image preview">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+        </div>
+        <div class="lightbox-body" id="lightbox-body">
+          <!-- Lightbox images will be injected dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
